@@ -1,0 +1,2 @@
+# spotifyPodcast
+Spotify内SBCastプレイリスト振り分けプログラム
