@@ -1,6 +1,6 @@
 // spotifyの情報入力 
-const SPOTIFY_CLIENT_ID = 'Web_Developerから取得できるCLIENT_ID';
-const SPOTIFY_CLIENT_SECRET = 'Web_Developerから取得できるCLIENT_SECRET';
+const SPOTIFY_CLIENT_ID = 'Spotify_for_Developerから取得できるCLIENT_ID';
+const SPOTIFY_CLIENT_SECRET = 'Spotify_for_Developerから取得できるCLIENT_SECRET';
 
 // ID類が書かれているスプレッドシートを取得
 const ID_spreadSheet = SpreadsheetApp.openById('スプレッドシートのID'); // ★()内変更お願いします。
