@@ -73,7 +73,7 @@ function getSpotifyService() {
   .setPropertyStore(PropertiesService.getUserProperties())
   // プレイリストに書き込む権限を設定
   // 複数必要な場合は半角スペース区切りで設定
-  .setScope('playlist-modify-private');
+  .setScope('playlist-modify-private' 'user-read-currently-playing');
 };
 
 // 認証完了時用コールバック関数
