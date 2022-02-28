@@ -14,7 +14,10 @@
     1. ライブラリの右にある+をクリック
     1. IDに`1B7FSrk5Zi6L1rSxxTDgDEUsPzlukDsi4KGuTMorsTQHhGBzBkMun4iDF`を入力
     1. 最新バージョンであることを確認して登録
-    1. GASメニュー→プロパティからscriptIDを取得
+    1. GAS設定ー→IDからscriptIDを取得
+    ![setting](https://user-images.githubusercontent.com/58931194/155928531-364fcd5d-04e5-457b-8c4f-d43220803ed1.png)
+    ↓
+    ![ID](https://user-images.githubusercontent.com/58931194/155928594-58c716e1-6b58-4192-a231-e7b8e1b6b3ad.png)
 
 ## Spotify APIの取得と設定
 1. Spotify for Developersにログイン
