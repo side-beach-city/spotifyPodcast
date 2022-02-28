@@ -73,7 +73,7 @@ function getSpotifyService() {
   .setPropertyStore(PropertiesService.getUserProperties())
   // プレイリストに書き込む権限を設定
   // 複数必要な場合は半角スペース区切りで設定
-  .setScope('playlist-modify-private' 'user-read-currently-playing');
+  .setScope('playlist-modify-private');
 };
 
 // 認証完了時用コールバック関数
@@ -136,23 +136,6 @@ function timeTriggerFunction() {
   // アクセストークンの有効期限が1時間となっているのでアクセストークンを都度リフレッシュ
   spotifyService.refresh();
   let accessToken = spotifyService.getAccessToken();
-  let fetchResult = UrlFetchApp.fetch('https://api.spotify.com/v1/me/player/currently-playing?market=JP', {
-    headers: {
-      Authorization: 'Bearer ' + accessToken,
-      // 下記を定義しておかないとトラックやアーティスト情報が英語になってしまう
-      'Accept-Language': 'ja,en'
-    }
-  });
-  let statusCode = fetchResult.getResponseCode();
-  let content = JSON.parse(fetchResult.getContentText() || '{}');
-  let track, artist, displayStr;
-  if (statusCode === 200) {
-    track = content.item.name;
-    artist = content.item.artists[0].name;
-    displayStr = 'NowPlaying：' + track + ' / ' + artist;
-  } else {
-    displayStr = '再生中の曲はありません';
-  }
   let rss_array = get_rss();
   let rss_title = rss_array[0];
   let rss_playlistID = rss_array[1];
