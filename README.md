@@ -10,8 +10,10 @@
     1. Dashboardに記載されているClient IDとClient Secretを取得(Client Secretは`SHOW CLIENT SECRET`を押すと出てきます)
 
 ## GAS準備
-1. OAuth認証をする
-    1. GASライブラリにOAuth認証を登録する
+1. ライブラリにOAuth2認証を登録
+    1. ライブラリの右にある+をクリック
+    1. IDに`1B7FSrk5Zi6L1rSxxTDgDEUsPzlukDsi4KGuTMorsTQHhGBzBkMun4iDF`を入力
+    1. 最新バージョンであることを確認して登録
     1. GASメニュー→プロパティからscriptIDを取得
 
 ## Spotify APIの取得と設定
@@ -32,4 +34,4 @@
 
 ## 実行関数
 1. GAS内でコメントに★がついている部分を適宜変更する
-1. timeTriggerSampleFunction()を定期実行する
+1. `createTrigger()`を毎月1日、18時前に実行するようにトリガーを作成する

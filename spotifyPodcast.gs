@@ -1,13 +1,58 @@
 // spotifyの情報入力 
-const SPOTIFY_CLIENT_ID = 'Spotify_for_Developerから取得できるCLIENT_ID';
-const SPOTIFY_CLIENT_SECRET = 'Spotify_for_Developerから取得できるCLIENT_SECRET';
+const SPOTIFY_CLIENT_ID = 'Deveropersから取得したCLIENT_ID';
+const SPOTIFY_CLIENT_SECRET = 'Deveropersから取得したCLIENT_SECRET';
 
 // ID類が書かれているスプレッドシートを取得
 const ID_spreadSheet = SpreadsheetApp.openById('スプレッドシートのID'); // ★()内変更お願いします。
 // ID類が書かれているシートを取得
 const ID_sheet = ID_spreadSheet.getSheetByName('ID'); // ★「ID」というシートがある前提での記述になっております。適宜変更してください。
-// カテゴリが書かれているシートを取得
-const category_sheet = ID_spreadSheet.getSheetByName('category'); // ★「ID」というシートがある前提での記述になっております。適宜変更してください。
+
+// 定期実行トリガーを作成（第2,4金曜18時）
+// ★毎月1日18時前に実行するように指定
+function createTrigger() {
+  // 今日の日付から月初を取得
+  const date = new Date(); // 今日現在
+  const day = 5;　// 金曜日
+  const weeks = [2, 4]; // 第2,4週
+  let specifiedDay = '';
+  const days = getDays(date, day);
+  const specifiedDays = days.filter((v, i) => weeks.includes(i+1));
+  for (i = 0; i < specifiedDays.length; i++) {
+    specifiedDay = specifiedDays[i];
+    specifiedDay.setHours(18);
+    specifiedDay.setMinutes(00);
+    ScriptApp.newTrigger('timeTriggerFunction')
+      .timeBased()
+      .at(specifiedDay)
+      .create();
+  }
+}
+
+
+/*
+*その年月のd曜日を取得する関数
+* 
+* @param {Date} date - 調べたい年月の日付（Date型）
+* @param {number} day - 取得したい曜日を表す数値(0:日曜日〜6:土曜日)
+* @return {days} ある年月のday曜日の日付の入った配列
+*/
+
+function getDays(date, day) {
+  const year = date.getFullYear();
+  const month = date.getMonth();
+
+  const days = [];
+
+  for (let i = 1; i <= 31; i++){
+    const tmpDate = new Date(year, month, i);
+
+    if (month !== tmpDate.getMonth()) break; //月代わりで処理終了
+    if (tmpDate.getDay() !== day) continue; //引数に指定した曜日以外の時は何もしない
+    days.push(tmpDate);
+  }
+
+  return days;
+}
 
 // OAuth2認証
 // getSpotifyServiceの作成
@@ -85,8 +130,8 @@ function doGet() {
   return HtmlService.createHtmlOutput(outputHtml);
 };
 
-// 定期実行用サンプル
-function timeTriggerSampleFunction() {
+// 定期実行用
+function timeTriggerFunction() {
   let spotifyService = getSpotifyService();
   // アクセストークンの有効期限が1時間となっているのでアクセストークンを都度リフレッシュ
   spotifyService.refresh();
@@ -110,8 +155,8 @@ function timeTriggerSampleFunction() {
   }
   let rss_array = get_rss();
   let rss_title = rss_array[0];
-  let rss_category = rss_array[1];
-  getPodcast(accessToken, rss_title, rss_category);
+  let rss_playlistID = rss_array[1];
+  getPodcast(accessToken, rss_title, rss_playlistID);
   return displayStr;
   
 };
@@ -121,16 +166,33 @@ function get_rss() {
 
   // フィードURL
   let my_rss = ID_sheet.getRange(2,2).getValue(); // ★B2に格納している値を取得。適宜変更してください。
-  // カテゴリ配列
-  let category_List = category_sheet.getRange(2,1,category_sheet.getLastRow() - 1).getValues(); // ★categoryシートのA列の値を取得。適宜変更してください。 
   
-  // category_Listだと二次元配列なので一次元配列にする処理
+  // カテゴリ配列
+  let category_table = ID_sheet.getRange(4,1,ID_sheet.getLastRow() - 3,2).getValues();
   let category_array = [];
-  for (let i = 0; i < category_List.length; i++) {
-    category_array.push(category_List[i][0]);
+  let keys = ['category_str', 'ID'];
+  let category_List = [];
+
+  // IDシートからカテゴリ名を抜き出して配列にする処理と、カテゴリ名とIDをJSON形式にする処理
+  category_table.forEach((v,i,a) => {
+    category_array.push(v[0]); 
+  });
+
+  //繰り返し処理にて実装します。
+  for(var j = 1; j < category_table.length; j++) {
+    var values = category_table[j];
+    var hash = {}
+    for(var k = 0; k < values.length; k++) {
+      var key = keys[k];
+      var value = values[k];
+      hash[key] = value;
+    }
+    category_List.push(hash);
   }
-  Logger.log(category_array);
-  let category = "";
+
+  let category = '';
+  let playlistID_array = '';
+  let playlistID = '';
 
   // フィードを取得
   let rss_data = UrlFetchApp.fetch(my_rss);
@@ -152,8 +214,12 @@ function get_rss() {
           ２．カテゴリ配列の最後であればエラーを出力
         */
         category = category_array.find(element => element === category_text);
+        // category_index = category_table.indexOf(category);
         if(category != null) {
           category = category_text;
+          // ここにcategory_List内でカテゴリが変数categoryに一致するIDを取り出す処理を書く
+          playlistID_array = category_List.find( ({ category_str }) => category_str === category);
+          playlistID = playlistID_array['ID'];
           break;
           }else{
             if (i === 3) {
@@ -161,16 +227,16 @@ function get_rss() {
             }
           }
       }
-    return [title, category];
+    return [title, playlistID];
 }
 
 
-function getPodcast(token, title, category) {
+function getPodcast(token, title, playlistID) {
 
 // プレイリストを取得
 
 // SBCastプレイリストのID
-let SBCast_ID = ID_sheet.getRange(3,2).getValue(); // ★B3に格納している値を取得。適宜変更してください。
+let SBCast_ID = ID_sheet.getRange(3,2).getValue();
 
   // API
   let epEndpoint = 'https://api.spotify.com/v1/shows/' + SBCast_ID + '/episodes';
@@ -198,28 +264,13 @@ let SBCast_ID = ID_sheet.getRange(3,2).getValue(); // ★B3に格納している
 // RSSで取得したtitleとpodcast_nameが同一であれば以下処理を行う
 if (title == podcast_name) {
 
-  // 振り分けるプレイリストIDを入れる変数
-  playListID = '';
 
 // プレイリストに指定エピソードを格納
 
   // カテゴリによって格納するプレイリストを変更する
   let addplEndpoint = '';
-  if (category == '地域のつながり') {
-    playListID = ID_sheet.getRange(4,2).getValue();
-  }else if(category == '親と子のやすらぎの場') {
-    playListID = ID_sheet.getRange(5,2).getValue();
-  }else if(category == '学びと暮らし') {
-    playListID = ID_sheet.getRange(6,2).getValue();
-  }else if(category == '地域と企業') {
-    playListID = ID_sheet.getRange(7,2).getValue();
-  }else if(category == 'コミュニティカフェ') {
-    playListID = ID_sheet.getRange(8,2).getValue();
-  }else if(category == 'ITに関わるコミュニティ') {
-    playListID = ID_sheet.getRange(9,2).getValue();
-  }
 
-  addplEndpoint = 'https://api.spotify.com/v1/playlists/' + playListID + '/tracks';
+  addplEndpoint = 'https://api.spotify.com/v1/playlists/' + playlistID + '/tracks';
 
   let data = "{\"uris\":[\"" + podcast_uri + "\"],\"position\":0}";
 
