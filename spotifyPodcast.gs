@@ -185,41 +185,41 @@ function get_rss() {
   let rss_entries = rss_xml.getRootElement().getChildren('channel')[0].getChildren('item');
   let category_length = rss_entries[0].getChildren("category").length;
   let title = rss_entries[0].getChildText("title");
-      
-      for (let i = 0; i < category_length; i++) {
-        let category_text = rss_entries[0].getChildren("category")[i].getText();
-        /*
-        行いたい処理
-        ・category_arrayの中にcategory_textが存在するか探索する
-        ・探索し、あったら出力
-        ・なかった場合
-          １．カテゴリ配列の最後で無ければループを続ける
-          ２．カテゴリ配列の最後であればエラーを出力
-        */
-        category = category_array.find(element => element === category_text);
-        // category_index = category_table.indexOf(category);
-        if(category != null) {
-          category = category_text;
-          // ここにcategory_List内でカテゴリが変数categoryに一致するIDを取り出す処理を書く
-          playlistID_array = category_List.find( ({ category_str }) => category_str === category);
-          playlistID = playlistID_array['ID'];
-          break;
-          }else{
-            if (i === 3) {
-              throw new Error('Required');
-            }
-          }
+
+  for (let i = 0; i < category_length; i++) {
+    let category_text = rss_entries[0].getChildren("category")[i].getText();
+    /*
+    行いたい処理
+    ・category_arrayの中にcategory_textが存在するか探索する
+    ・探索し、あったら出力
+    ・なかった場合
+      １．カテゴリ配列の最後で無ければループを続ける
+      ２．カテゴリ配列の最後であればエラーを出力
+    */
+    category = category_array.find(element => element === category_text);
+    // category_index = category_table.indexOf(category);
+    if(category != null) {
+      category = category_text;
+      // ここにcategory_List内でカテゴリが変数categoryに一致するIDを取り出す処理を書く
+      playlistID_array = category_List.find( ({ category_str }) => category_str === category);
+      playlistID = playlistID_array['ID'];
+      break;
+    }else{
+      if (i === 3) {
+        throw new Error('Required');
       }
-    return [title, playlistID];
+    }
+  }
+  return [title, playlistID];
 }
 
 
 function getPodcast(token, title, playlistID) {
 
-// プレイリストを取得
+  // プレイリストを取得
 
-// SBCastプレイリストのID
-let SBCast_ID = ID_sheet.getRange(3,2).getValue();
+  // SBCastプレイリストのID
+  let SBCast_ID = ID_sheet.getRange(3,2).getValue();
 
   // API
   let epEndpoint = 'https://api.spotify.com/v1/shows/' + SBCast_ID + '/episodes';
@@ -244,29 +244,29 @@ let SBCast_ID = ID_sheet.getRange(3,2).getValue();
     podcast_uri = targetPlaylist[0].uri;
   };
 
-// RSSで取得したtitleとpodcast_nameが同一であれば以下処理を行う
-if (title == podcast_name) {
+  // RSSで取得したtitleとpodcast_nameが同一であれば以下処理を行う
+  if (title == podcast_name) {
 
 
-// プレイリストに指定エピソードを格納
+    // プレイリストに指定エピソードを格納
 
-  // カテゴリによって格納するプレイリストを変更する
-  let addplEndpoint = '';
+    // カテゴリによって格納するプレイリストを変更する
+    let addplEndpoint = '';
 
-  addplEndpoint = 'https://api.spotify.com/v1/playlists/' + playlistID + '/tracks';
+    addplEndpoint = 'https://api.spotify.com/v1/playlists/' + playlistID + '/tracks';
 
-  let data = "{\"uris\":[\"" + podcast_uri + "\"],\"position\":0}";
+    let data = "{\"uris\":[\"" + podcast_uri + "\"],\"position\":0}";
 
-  let addplOptions = {
-    'method': 'post',
-    'contentType': 'application/json',
-    'headers': {
-      'Authorization': 'Bearer ' + token
-    },
-    'payload': data
-  };
+    let addplOptions = {
+      'method': 'post',
+      'contentType': 'application/json',
+      'headers': {
+        'Authorization': 'Bearer ' + token
+      },
+      'payload': data
+    };
 
-  // エピソード格納
-  let response = UrlFetchApp.fetch(addplEndpoint, addplOptions);
+    // エピソード格納
+    let response = UrlFetchApp.fetch(addplEndpoint, addplOptions);
   }
 }
