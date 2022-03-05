@@ -140,8 +140,6 @@ function timeTriggerFunction() {
   let rss_title = rss_array[0];
   let rss_playlistID = rss_array[1];
   getPodcast(accessToken, rss_title, rss_playlistID);
-  return displayStr;
-  
 };
 
 // RSSからタイトルとカテゴリを抽出する処理
