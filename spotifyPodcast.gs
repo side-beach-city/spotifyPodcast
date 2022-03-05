@@ -1,9 +1,9 @@
 // spotifyの情報入力 
-const SPOTIFY_CLIENT_ID = 'Deveropersから取得したCLIENT_ID';
-const SPOTIFY_CLIENT_SECRET = 'Deveropersから取得したCLIENT_SECRET';
+const SPOTIFY_CLIENT_ID = PropertiesService.getScriptProperties().getProperty("ClientID");
+const SPOTIFY_CLIENT_SECRET = PropertiesService.getScriptProperties().getProperty("ClientSecret");
 
 // ID類が書かれているスプレッドシートを取得
-const ID_spreadSheet = SpreadsheetApp.openById('スプレッドシートのID'); // ★()内変更お願いします。
+const ID_spreadSheet = SpreadsheetApp.openById(PropertiesService.getScriptProperties().getProperty("SheetID")); // ★()内変更お願いします。
 // ID類が書かれているシートを取得
 const ID_sheet = ID_spreadSheet.getSheetByName('ID'); // ★「ID」というシートがある前提での記述になっております。適宜変更してください。
 
