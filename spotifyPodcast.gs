@@ -160,7 +160,7 @@ function get_rss() {
   });
 
   //繰り返し処理にて実装します。
-  for(var j = 1; j < category_table.length; j++) {
+  for(var j = ; j < category_table.length; j++) {
     var values = category_table[j];
     var hash = {}
     for(var k = 0; k < values.length; k++) {
