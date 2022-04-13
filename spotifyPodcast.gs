@@ -270,6 +270,7 @@ function getPodcast(token, title, playlistID) {
 
     // エピソード格納
     let response = UrlFetchApp.fetch(addplEndpoint, addplOptions);
+    console.log("プレイリストに項目を追加しました。");
   }
 }
 
