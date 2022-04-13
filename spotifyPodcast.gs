@@ -160,7 +160,7 @@ function get_rss() {
   });
 
   //繰り返し処理にて実装します。
-  for(var j = ; j < category_table.length; j++) {
+  for(var j = 0; j < category_table.length; j++) {
     var values = category_table[j];
     var hash = {}
     for(var k = 0; k < values.length; k++) {
@@ -231,7 +231,8 @@ function getPodcast(token, title, playlistID) {
   
   // 対象プレイリスト内のエピソードをすべて取得
   let targetPlaylist = JSON.parse(response).items;
-  
+  let currentPlaylist = getPlaylistEntries(token, playlistID);
+
   // 変数の初期化
   let podcast_name = ""; // 対象のポッドキャストエピソードの名前
   let podcast_uri = ""; // 対象のポッドキャストエピソードのURI
@@ -242,6 +243,9 @@ function getPodcast(token, title, playlistID) {
     podcast_uri = targetPlaylist[0].uri;
   };
 
+  if (targetPlaylist[0].id == currentPlaylist[0].track.id){
+    console.log("RSSが更新されていないため処理を中断します");
+  };
   // RSSで取得したtitleとpodcast_nameが同一であれば以下処理を行う
   if (title == podcast_name) {
 
@@ -267,4 +271,15 @@ function getPodcast(token, title, playlistID) {
     // エピソード格納
     let response = UrlFetchApp.fetch(addplEndpoint, addplOptions);
   }
+}
+
+function getPlaylistEntries(token, playlistID){
+  let epEndpoint = `https://api.spotify.com/v1/playlists/${playlistID}/tracks`;
+  let epOptions = {
+    'method': 'get',
+    'headers': {
+      'Authorization': `Bearer ${token}`
+    }
+  };
+  return JSON.parse(UrlFetchApp.fetch(epEndpoint, epOptions)).items;
 }
